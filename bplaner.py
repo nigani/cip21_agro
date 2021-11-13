@@ -179,9 +179,9 @@ def select_place():
 
     if "place" not in st.session_state:
         st.session_state.places = ['Йошкар-Ола', 'Юринский район', 'Сернурский район', 'Волжский район']
-        st.session_state.culture = list(cultures.keys())[0]
-    culture = st.selectbox('', st.session_state.cultures, st.session_state.cultures[st.session_state.culture]['id'])
-    st.session_state.culture = culture
+        st.session_state.place = 0
+    place = st.selectbox('', st.session_state.places, st.session_state.place)
+    st.session_state.culture = place
 
     with st.expander("Замли сельскохозяйственного назначения Республики Марий Эл"):
         st.image("http://mari-el.gov.ru/minstroy/DocLib30/120412_05.jpg")
@@ -192,7 +192,7 @@ def select_place():
 pages = {
     'Описание сервиса': {'id': 0, 'func': main_page},
     'Выбор сельхозкультуры': {'id': 1, 'func': select_culture},
-    'Выбор месторасположения': {'id': 2, 'func': select_culture},
+    'Выбор месторасположения': {'id': 2, 'func': select_place},
     'Выбор варианта возделывания': {'id': 3, 'func': select_culture},
     'Рекомендация': {'id': 4, 'func': select_culture},
     'Расчет энергозатрат на год': {'id': 5, 'func': select_culture},
