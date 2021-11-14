@@ -26,7 +26,7 @@ cultures = {
         't_min': 16,
         't_max': 25,
         'Влажность_min': 0.4,
-        'Влажность_max': 0.6,
+        'Влажность_max': 0.8,
         'Осадки_min': 300,
         'Осадки_max': 300,
         'Почва': ['Суглинистые', 'Песчаные суглинки'],
@@ -86,7 +86,7 @@ cultures = {
         't_min': 25,
         't_max': 30,
         'Влажность_min': 0.6,
-        'Влажность_max': 0.7,
+        'Влажность_max': 0.8,
         'Осадки_min': 300,
         'Осадки_max': 400,
         'Почва': ['Легкосуглинистые'],
@@ -98,7 +98,7 @@ cultures = {
         't_min': 25,
         't_max': 30,
         'Влажность_min': 0.6,
-        'Влажность_max': 0.7,
+        'Влажность_max': 0.8,
         'Осадки_min': 300,
         'Осадки_max': 400,
         'Почва': ['Легкосуглинистые'],
@@ -199,7 +199,7 @@ def main_page():
 
 
 def highlight_idx(x, idx):
-    return np.where(x.index == idx, 'background-color: #e6ffe6;', None)
+    return np.where(x.index == idx, 'background-color: #e6ffe6; color: #000000;', None)
 
 
 def select_culture():
