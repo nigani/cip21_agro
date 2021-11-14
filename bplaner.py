@@ -167,6 +167,10 @@ if "place" not in st.session_state:
     st.session_state.places = places
     st.session_state.place = list(places.keys())[0]
 
+if "gr_type" not in st.session_state:
+    st.session_state.gr_types = ['Открытый грунт', 'Теплица']
+    st.session_state.gr_type = st.session_state.gr_types[0]
+
 def next_step():
     save_pages = st.session_state.pages
     next_page_id = pages[st.session_state.page]['id'] + 1
@@ -420,17 +424,42 @@ def select_calc():
 def select_risk():
     st.title("Оценка рисков")
 
+    st.write('Необходимо обратить внимание на возможность страхования от неурожая, '
+             'принятие защитных мер от вредителей, другие факторы.')
+
     st.button("ДАЛЕЕ", on_click=next_step)
 
 
 def select_change():
     st.title("Изменение данных")
 
+    @st.cache
+    def convert_df(df):
+        return df.to_csv(index=False).encode('utf-8')
+
+    csv = convert_df(pd.read_csv('calc2.csv'))
+
+    st.download_button(
+        label="Выгрузить данные",
+        data=csv,
+        file_name='calc.csv',
+        mime='text/csv',
+    )
+
+    spectra = st.file_uploader("Загрузить измененные данные", type={"csv"})
+    if spectra is not None:
+        spectra_df = pd.read_csv(spectra)
+        st.write(spectra_df)
+        spectra_df.to_csv('calc2.csv')
+
     st.button("ДАЛЕЕ", on_click=next_step)
 
 
 def select_help():
     st.title("Меры господдержки в Марий Эл")
+
+    st.write("[Государственная поддержка агропромышленного комплекса]"
+             "(http://mari-el.gov.ru/minselhoz/Pages/budjet.aspx)")
 
     st.button("ДАЛЕЕ", on_click=next_step)
 
