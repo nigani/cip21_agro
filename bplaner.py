@@ -1,4 +1,5 @@
 ﻿import plotly.graph_objects as go
+import plotly.express as px
 
 import pandas as pd
 import numpy as np
@@ -28,7 +29,7 @@ cultures = {
         'Влажность_min': 0.4,
         'Влажность_max': 0.8,
         'Осадки_min': 300,
-        'Осадки_max': 300,
+        'Осадки_max': 450,
         'Почва': ['Суглинистые', 'Песчаные суглинки'],
         'pH_min': 4.5,
         'pH_max': 7.5,
@@ -40,7 +41,7 @@ cultures = {
         'Влажность_min': 0.7,
         'Влажность_max': 0.8,
         'Осадки_min': 250,
-        'Осадки_max': 300,
+        'Осадки_max': 450,
         'Почва': ['Суглинистые'],
         'pH_min': 5.6,
         'pH_max': 7.0,
@@ -52,7 +53,7 @@ cultures = {
         'Влажность_min': 0.7,
         'Влажность_max': 0.8,
         'Осадки_min': 334,
-        'Осадки_max': 400,
+        'Осадки_max': 450,
         'Почва': ['Песчаные', 'Супесчаные', 'Легкосуглинистые'],
         'pH_min': 4.5,
         'pH_max': 7.5,
@@ -64,7 +65,7 @@ cultures = {
         'Влажность_min': 0.7,
         'Влажность_max': 0.8,
         'Осадки_min': 334,
-        'Осадки_max': 400,
+        'Осадки_max': 450,
         'Почва': ['Песчаные', 'Супесчаные', 'Легкосуглинистые'],
         'pH_min': 5.0,
         'pH_max': 8.0,
@@ -76,7 +77,7 @@ cultures = {
         'Влажность_min': 0.8,
         'Влажность_max': 0.8,
         'Осадки_min': 200,
-        'Осадки_max': 250,
+        'Осадки_max': 400,
         'Почва': ['Супесчаные', 'Легкосуглинистые', 'Среднесуглинистые'],
         'pH_min': 6.5,
         'pH_max': 7.4,
@@ -88,7 +89,7 @@ cultures = {
         'Влажность_min': 0.6,
         'Влажность_max': 0.8,
         'Осадки_min': 300,
-        'Осадки_max': 400,
+        'Осадки_max': 450,
         'Почва': ['Легкосуглинистые'],
         'pH_min': 6.5,
         'pH_max': 7.0,
@@ -100,7 +101,7 @@ cultures = {
         'Влажность_min': 0.6,
         'Влажность_max': 0.8,
         'Осадки_min': 300,
-        'Осадки_max': 400,
+        'Осадки_max': 450,
         'Почва': ['Легкосуглинистые'],
         'pH_min': 6.5,
         'pH_max': 7.0,
@@ -112,7 +113,7 @@ cultures = {
         'Влажность_min': 0.8,
         'Влажность_max': 0.9,
         'Осадки_min': 250,
-        'Осадки_max': 300,
+        'Осадки_max': 500,
         'Почва': ['Суглинистые', 'Глинистые'],
         'pH_min': 5.5,
         'pH_max': 6.5,
@@ -168,6 +169,11 @@ def next_step():
     st.experimental_rerun()
 
 
+def to_select_culture():
+    st.session_state.page = 'Выбор сельхозкультуры'
+    st.experimental_rerun()
+
+
 def main_page():
     st.title("БИЗНЕС-ПЛАНЕР")
     st.write(
@@ -201,6 +207,8 @@ def main_page():
 def highlight_idx(x, idx):
     return np.where(x.index == idx, 'background-color: #e6ffe6; color: #000000;', None)
 
+def highlight_flags(x, flags):
+    return np.where(flags, 'background-color: #e6ffe6; color: #000000;', None)
 
 def select_culture():
     st.title("Выбор сельхозкультуры")
@@ -248,10 +256,10 @@ def select_gr_type():
                            st.session_state.gr_types, st.session_state.gr_types.index(st.session_state.gr_type))
     st.session_state.gr_type = gr_type
 
+    st.button("Получить рекомендацию", on_click=next_step)
+
     with st.expander("Варианты возделывания", expanded=True):
         st.image("Варианты возделывания.jpg")
-
-    st.button("Получить рекомендацию", on_click=next_step)
 
 
 def select_recomend():
@@ -259,38 +267,35 @@ def select_recomend():
     st.write("## " + st.session_state.culture + " / Место: " + st.session_state.place +
              " / Тип возделывания: " + st.session_state.gr_type)
     st.write("---")
-    st.write("## Анализ данных")
-    st.write()
-    st.write(st.session_state.cultures[st.session_state.culture]['t_max'])
-    st.write(st.session_state.cultures[st.session_state.culture]['Влажность_min'])
-    st.write(st.session_state.cultures[st.session_state.culture]['Влажность_max'])
-    st.write(st.session_state.cultures[st.session_state.culture]['Осадки_min'])
-    st.write(st.session_state.cultures[st.session_state.culture]['Осадки_max'])
-    st.write(st.session_state.cultures[st.session_state.culture]['Почва'])
-    st.write(st.session_state.cultures[st.session_state.culture]['pH_min'])
-    st.write(st.session_state.cultures[st.session_state.culture]['pH_max'])
 
     with st.container():
+        st.write("## Анализ возможности выращивания в открытом грунте")
+        result = True
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            t_min = st.session_state.cultures[st.session_state.culture]['t_min']
-            t_max = st.session_state.cultures[st.session_state.culture]['t_max']
-            t_place = st.session_state.places[st.session_state.place]['t_лето']
+            v_min = st.session_state.cultures[st.session_state.culture]['t_min']
+            v_max = st.session_state.cultures[st.session_state.culture]['t_max']
+            v_place = st.session_state.places[st.session_state.place]['t_лето']
             fig_c1 = go.Figure(go.Indicator(
                 mode="gauge+number",
-                value=t_place,
+                value = v_place,
                 domain={'x': [0, 1], 'y': [0, 1]},
                 title={'text': "Температура"},
                 gauge={'axis': {'range': [None, 50]},
                        'bar': {'thickness': 0},
                        'steps': [
                            {'range': [0, 50], 'color': "lightgray"},
-                           {'range': [t_min , t_max], 'color': "green"}],
-                       'threshold': {'line': {'color': "red", 'width': 6}, 'thickness': 0.75, 'value': t_place}}))
+                           {'range': [v_min , v_max], 'color': "green"}],
+                       'threshold': {'line': {'color': "red", 'width': 6}, 'thickness': 0.75, 'value': v_place}}))
 
-            fig_c1.update_layout(autosize=False, width=200, height=200, margin=dict(l=20, r=20, b=20, t=60),
+            fig_c1.update_layout(autosize=False, width=200, height=200, margin=dict(l=30, r=30, b=20, t=60),
                                  font={'size': 16})
             st.plotly_chart(fig_c1, use_container_width=True)
+            if v_min <= v_place <= v_max:
+                st.success("**Хорошо**")
+            else:
+                st.error("**Плохо**")
+                result = False
         with col2:
             v_min = st.session_state.cultures[st.session_state.culture]['Влажность_min']
             v_max = st.session_state.cultures[st.session_state.culture]['Влажность_max']
@@ -306,38 +311,119 @@ def select_recomend():
                            {'range': [0, 1], 'color': "lightgray"},
                            {'range': [v_min , v_max], 'color': "green"}],
                        'threshold': {'line': {'color': "red", 'width': 6}, 'thickness': 0.75, 'value': v_place}}))
-
-            fig_c2.update_layout(autosize=False, width=200, height=200, margin=dict(l=20, r=20, b=20, t=60),
+            fig_c2.update_layout(autosize=False, width=200, height=200, margin=dict(l=30, r=30, b=20, t=60),
                                  font={'size': 16})
             st.plotly_chart(fig_c2, use_container_width=True)
+            if v_min <= v_place <= v_max:
+                st.success("**Хорошо**")
+            else:
+                st.error("**Плохо**")
+                result = False
         with col3:
+            v_min = st.session_state.cultures[st.session_state.culture]['Осадки_min']
+            v_max = st.session_state.cultures[st.session_state.culture]['Осадки_max']
+            v_place = st.session_state.places[st.session_state.place]['Осадки']
             fig_c3 = go.Figure(go.Indicator(
                 mode="gauge+number",
-                value=500,
+                value=v_place,
                 domain={'x': [0, 1], 'y': [0, 1]},
-                title={'text': "Осадки"}))
-            fig_c3.update_layout(autosize=False, width=200, height=200, margin=dict(l=20, r=20, b=20, t=60),
-                                 font={'size': 18})
+                title={'text': "Осадки"},
+                gauge={'axis': {'range': [None, 500]},
+                       'bar': {'thickness': 0},
+                       'steps': [
+                           {'range': [0, 500], 'color': "lightgray"},
+                           {'range': [v_min, v_max], 'color': "green"}],
+                       'threshold': {'line': {'color': "red", 'width': 6}, 'thickness': 0.75, 'value': v_place}}))
+
+            fig_c3.update_layout(autosize=False, width=200, height=200, margin=dict(l=30, r=30, b=20, t=60),
+                                 font={'size': 16})
             st.plotly_chart(fig_c3, use_container_width=True)
+            if v_min <= v_place <= v_max:
+                st.success("**Хорошо**")
+            else:
+                st.error("**Плохо**")
+                result = False
         with col4:
+            v_min = st.session_state.cultures[st.session_state.culture]['pH_min']
+            v_max = st.session_state.cultures[st.session_state.culture]['pH_max']
+            v_place = st.session_state.places[st.session_state.place]['pH']
             fig_c4 = go.Figure(go.Indicator(
                 mode="gauge+number",
-                value=500,
+                value=v_place,
                 domain={'x': [0, 1], 'y': [0, 1]},
-                title={'text': "pH"}))
-            fig_c4.update_layout(autosize=False, width=200, height=200, margin=dict(l=20, r=20, b=20, t=60),
-                                 font={'size': 18})
+                title={'text': "pH"},
+                gauge={'axis': {'range': [None, 10]},
+                       'bar': {'thickness': 0},
+                       'steps': [
+                           {'range': [0, 10], 'color': "lightgray"},
+                           {'range': [v_min, v_max], 'color': "green"}],
+                       'threshold': {'line': {'color': "red", 'width': 6}, 'thickness': 0.75, 'value': v_place}}))
+
+            fig_c4.update_layout(autosize=False, width=200, height=200, margin=dict(l=30, r=30, b=20, t=60),
+                                 font={'size': 16})
             st.plotly_chart(fig_c4, use_container_width=True)
+            if v_min <= v_place <= v_max:
+                st.success("**Хорошо**")
+            else:
+                st.error("**Плохо**")
+                result = False
+    if result:
+        st.success("## РЕКОМЕНДОВАНО")
+    elif st.session_state.gr_type == 'Теплица':
+        st.success("## РЕКОМЕНДОВАНО ДЛЯ ТЕПЛИЦЫ")
+    else:
+        st.error("## НЕ РЕКОМЕНДОВАНО", )
+        st.write("---")
+        with st.expander("Рекомендация культуры", expanded=True):
+            st.write("Вы можете выращивать выбранную культуру в защищенном грунте (теплице)"
+                     " или выбрать другую культуру")
+            flags = pd.DataFrame(st.session_state.cultures).T.t_min <=\
+                    st.session_state.places[st.session_state.place]['t_лето']
+            st.dataframe(pd.DataFrame(st.session_state.cultures).astype(str).T.style.apply(
+                highlight_flags, flags=flags))
+            st.button("Вернуться к выбору культуры", on_click=to_select_culture)
+
+    st.button("ДАЛЕЕ", on_click=next_step)
+
+
+def select_calc_energo():
+    st.title("Расчет энергозатрат")
+    df = pd.read_csv('calc2.csv')
+    df = df[df['Вид затрат']=='Энергозатраты'].groupby('Статья').sum()
+    st.dataframe(df)
+
+    fig = px.bar(df['Сумма'], x='Сумма', orientation='h')
+    st.write(fig)
+
+    st.write('Изменить цены можно в разделе Изменение данных')
 
     st.button("ДАЛЕЕ", on_click=next_step)
 
 
 def select_calc():
-    st.title("Расчет прибыли")
+    st.title("Планирование прибыли")
     df = pd.read_csv('calc2.csv')
     st.dataframe(df)
 
     st.bar_chart(df.groupby('Этап')['Сумма'].sum(), )
+
+    st.button("ДАЛЕЕ", on_click=next_step)
+
+
+def select_risk():
+    st.title("Оценка рисков")
+
+    st.button("ДАЛЕЕ", on_click=next_step)
+
+
+def select_change():
+    st.title("Изменение данных")
+
+    st.button("ДАЛЕЕ", on_click=next_step)
+
+
+def select_help():
+    st.title("Меры господдержки в Марий Эл")
 
     st.button("ДАЛЕЕ", on_click=next_step)
 
@@ -348,12 +434,11 @@ pages = {
     'Выбор месторасположения': {'id': 2, 'func': select_place},
     'Выбор варианта возделывания': {'id': 3, 'func': select_gr_type},
     'Рекомендация': {'id': 4, 'func': select_recomend},
-    'Расчет энергозатрат на год': {'id': 5, 'func': select_culture},
-    'Комплексный расчет затрат': {'id': 6, 'func': select_culture},
-    'Планирование прибыли': {'id': 7, 'func': select_calc},
-    'Оценка рисков': {'id': 8, 'func': select_culture},
-    'Изменение данных': {'id': 9, 'func': select_culture},
-    'Меры господдержки в Марий Эл': {'id': 10, 'func': select_culture},
+    'Расчет энергозатрат на год': {'id': 5, 'func': select_calc_energo},
+    'Планирование прибыли': {'id': 6, 'func': select_calc},
+    'Оценка рисков': {'id': 7, 'func': select_risk},
+    'Изменение данных': {'id': 8, 'func': select_change},
+    'Меры господдержки в Марий Эл': {'id': 9, 'func': select_help},
 }
 
 st.sidebar.title(f"Меню")
