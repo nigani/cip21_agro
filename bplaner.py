@@ -159,6 +159,13 @@ places = {
     },
 }
 
+if "culture" not in st.session_state:
+    st.session_state.cultures = cultures
+    st.session_state.culture = list(cultures.keys())[0]
+
+if "place" not in st.session_state:
+    st.session_state.places = places
+    st.session_state.place = list(places.keys())[0]
 
 def next_step():
     save_pages = st.session_state.pages
@@ -278,7 +285,7 @@ def select_recomend():
             v_place = st.session_state.places[st.session_state.place]['t_лето']
             fig_c1 = go.Figure(go.Indicator(
                 mode="gauge+number",
-                value = v_place,
+                value=v_place,
                 domain={'x': [0, 1], 'y': [0, 1]},
                 title={'text': "Температура"},
                 gauge={'axis': {'range': [None, 50]},
