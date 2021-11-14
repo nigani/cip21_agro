@@ -435,9 +435,9 @@ def select_change():
 
     @st.cache
     def convert_df(df):
-        return df.to_csv(index=False).encode('utf-8')
+        return df.to_csv(sep=',', index=False).encode('utf-8')
 
-    csv = convert_df(pd.read_csv('calc2.csv'))
+    csv = convert_df(pd.read_csv('calc2.csv', sep=','))
 
     st.download_button(
         label="Выгрузить данные",
@@ -448,9 +448,9 @@ def select_change():
 
     spectra = st.file_uploader("Загрузить измененные данные", type={"csv"})
     if spectra is not None:
-        spectra_df = pd.read_csv(spectra)
+        spectra_df = pd.read_csv(spectra, sep=',')
         st.write(spectra_df)
-        spectra_df.to_csv('calc2.csv')
+        spectra_df.to_csv('calc2.csv', index=False, sep=',')
 
     st.button("ДАЛЕЕ", on_click=next_step)
 
